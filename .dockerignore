@@ -5,3 +5,5 @@
 /libs/messages/src/ts-proto-generated/**
 /play/src/messages/generated/**
 /back/src/messages/generated/**
+.env
+.env.local
