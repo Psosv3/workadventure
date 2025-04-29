@@ -36,6 +36,9 @@ services:
           - "pusher.workadventure.localhost"
   play:
     image: thecodingmachine/nodejs:v2-20-bullseye
+    # build:
+    #   context: .
+    #   dockerfile: play/Dockerfile
     command: npm run dev
     working_dir: /usr/src/app/play
     volumes:
