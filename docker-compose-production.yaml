@@ -158,6 +158,9 @@ services:
 
   back:
     image: thecodingmachine/workadventure-back:${VERSION}
+    build:
+      context: .
+      dockerfile: play/Dockerfile
     environment:
       - PLAY_URL=https://${DOMAIN}
       - SECRET_JITSI_KEY

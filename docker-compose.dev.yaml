@@ -1,0 +1,115 @@
+version: "3.6"
+services:
+  reverse-proxy:
+    image: traefik:v2.11
+    expose:
+      - "8080"
+    ports:
+      - "80:80"
+    command:
+      - --api.insecure=true
+      - --providers.docker
+      - --entryPoints.web.address=:80
+      - --providers.docker.exposedbydefault=false
+    labels:
+      - "traefik.enable=true"
+      - "traefik.port=8080"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.workadventure.localhost`)"
+      - "traefik.http.routers.traefik.service=api@internal"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      default:
+        aliases:
+          - "front.workadventure.localhost"
+          - "play.workadventure.localhost"
+          - "room-api.workadventure.localhost"
+          - "maps.workadventure.localhost"
+          - "oidc.workadventure.localhost"
+          - "map-storage.workadventure.localhost"
+          - "xmpp.workadventure.localhost"
+          - "matrix.workadventure.localhost"
+          - "pusher.workadventure.localhost"
+
+  back:
+    image: thecodingmachine/nodejs:v2-20-bullseye
+    command: npm run dev
+    working_dir: /usr/src/app/back
+    environment:
+      DEBUG: "*"
+      PLAY_URL: http://localhost:3000
+      SECRET_KEY: "$SECRET_KEY"
+      SECRET_JITSI_KEY: "$SECRET_JITSI_KEY"
+      ENABLE_MAP_EDITOR: "$ENABLE_MAP_EDITOR"
+      ALLOW_ARTILLERY: "true"
+      ADMIN_API_URL: "$ADMIN_API_URL"
+      ADMIN_API_TOKEN: "$ADMIN_API_TOKEN"
+      JITSI_URL: $JITSI_URL
+      JITSI_ISS: $JITSI_ISS
+      BBB_URL: $BBB_URL
+      BBB_SECRET: $BBB_SECRET
+      TURN_STATIC_AUTH_SECRET: "$TURN_STATIC_AUTH_SECRET"
+      MAX_PER_GROUP: "$MAX_PER_GROUP"
+      REDIS_HOST: redis
+      NODE_ENV: development
+      STORE_VARIABLES_FOR_LOCAL_MAPS: "true"
+      PROMETHEUS_AUTHORIZATION_TOKEN: "$PROMETHEUS_AUTHORIZATION_TOKEN"
+      MAP_STORAGE_URL: "map-storage:50053"
+      PUBLIC_MAP_STORAGE_URL: "http://map-storage.workadventure.localhost"
+      INTERNAL_MAP_STORAGE_URL: "http://map-storage:3000"
+      PLAYER_VARIABLES_MAX_TTL: $PLAYER_VARIABLES_MAX_TTL
+      ENABLE_CHAT: "$ENABLE_CHAT"
+      ENABLE_CHAT_UPLOAD: "$ENABLE_CHAT_UPLOAD"
+    volumes:
+      - .:/usr/src/app
+    tmpfs: /tmp
+    ports:
+      - "9232:9229"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.back.rule=Host(`api.workadventure.localhost`)"
+      - "traefik.http.routers.back.entryPoints=web"
+      - "traefik.http.services.back.loadbalancer.server.port=8080"
+
+  map-storage:
+    image: thecodingmachine/nodejs:v2-20-bullseye
+    command: npm run start:dev
+    working_dir: /usr/src/app/map-storage
+    environment:
+      STARTUP_COMMAND_1: ../wait-proto.sh
+      STARTUP_COMMAND_2: ../npm-install.sh
+      NODE_ENV: development
+      PROMETHEUS_AUTHORIZATION_TOKEN: "$PROMETHEUS_AUTHORIZATION_TOKEN"
+      ENABLE_BASIC_AUTHENTICATION: "true"
+      AUTHENTICATION_USER: "john.doe"
+      AUTHENTICATION_PASSWORD: "password"
+      API_URL: back:50051
+      PATH_PREFIX: ""
+      MAP_STORAGE_API_TOKEN: "FFVSGBSGBSGFB23SFGBSFG4BS"
+      PUSHER_URL: http://localhost:3000
+    volumes:
+      - .:/usr/src/app
+    tmpfs: /tmp
+    ports:
+      - "9233:9229"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.map-storage.rule=Host(`map-storage.workadventure.localhost`)"
+      - "traefik.http.routers.map-storage.entryPoints=web"
+      - "traefik.http.routers.map-storage.service=map-storage"
+      - "traefik.http.services.map-storage.loadbalancer.server.port=3000"
+
+  redis:
+    image: redis:6
+
+  messages:
+    image: thecodingmachine/nodejs:v2-20-bullseye-build
+    environment:
+      STARTUP_COMMAND_1: npm install
+      STARTUP_COMMAND_2: npm run proto:watch
+    volumes:
+      - ./messages:/usr/src/app
+      - ./back:/usr/src/back
+      - ./play:/usr/src/play
+      - ./map-storage:/usr/src/map-storage
+      - ./libs:/usr/src/libs 
