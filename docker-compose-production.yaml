@@ -29,13 +29,13 @@ services:
     restart: ${RESTART_POLICY}
 
   play:
-    image: thecodingmachine/workadventure-play:${VERSION}
-    working_dir: /usr/src/app/play
-    volumes:
-      - .:/usr/src/app
-    # build:
-    #   context: .
-    #   dockerfile: play/Dockerfile
+    # image: thecodingmachine/workadventure-play:${VERSION}
+    # working_dir: /usr/src/app/play
+    # volumes:
+    #   - .:/usr/src/app
+    build:
+      context: .
+      dockerfile: play/Dockerfile
     environment:
       - DEBUG_MODE
       - JITSI_URL
