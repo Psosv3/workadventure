@@ -29,10 +29,12 @@ services:
     restart: ${RESTART_POLICY}
 
   play:
-    # image: thecodingmachine/workadventure-play:${VERSION}
-    build:
-      context: .
-      dockerfile: play/Dockerfile
+    image: thecodingmachine/workadventure-play:${VERSION}
+    volumes:
+      - ./play:/usr/src/app
+    # build:
+    #   context: .
+    #   dockerfile: play/Dockerfile
     environment:
       - DEBUG_MODE
       - JITSI_URL
@@ -158,9 +160,9 @@ services:
 
   back:
     image: thecodingmachine/workadventure-back:${VERSION}
-    build:
-      context: .
-      dockerfile: play/Dockerfile
+    # build:
+    #   context: .
+    #   dockerfile: play/Dockerfile
     environment:
       - PLAY_URL=https://${DOMAIN}
       - SECRET_JITSI_KEY
