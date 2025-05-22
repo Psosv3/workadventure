@@ -30,6 +30,7 @@ services:
 
   play:
     # image: thecodingmachine/workadventure-play:${VERSION}
+    image: onexus/workadventure-play:latest
     # working_dir: /usr/src/app/play
     # volumes:
     #   - .:/usr/src/app
