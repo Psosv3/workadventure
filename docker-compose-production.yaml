@@ -30,8 +30,9 @@ services:
 
   play:
     image: thecodingmachine/workadventure-play:${VERSION}
+    working_dir: /usr/src/app/play
     volumes:
-      - ./play:/usr/src/app
+      - .:/usr/src/app
     # build:
     #   context: .
     #   dockerfile: play/Dockerfile
