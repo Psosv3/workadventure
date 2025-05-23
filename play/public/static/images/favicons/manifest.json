@@ -126,14 +126,14 @@
     "theme_color": "#000000",
     "shortcuts": [
       {
-        "name": "WorkAdventures",
+        "name": "Workspace",
         "short_name": "WA",
-        "description": "WorkAdventure application",
+        "description": "Onexus workspace application",
         "url": "/",
         "icons": [{ "src": "/static/images/favicons/android-icon-192x192.png", "sizes": "192x192", "type": "image/png" }]
       }
     ],
-    "description": "WorkAdventure application",
+    "description": "Onexus workspace application",
     "screenshots": [],
     "related_applications": [{
         "platform": "web",
